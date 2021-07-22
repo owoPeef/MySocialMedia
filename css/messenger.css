@@ -1,0 +1,20 @@
+.left_message {
+    border-radius: 3px 3px 3px 3px;
+}
+.right_offset {
+    margin-right: 10px;
+    font-weight: normal;
+}
+.right_message {
+    margin-left: 1100px;
+    text-align: right;
+    margin-right: 10px;
+    background-color: #ffab02;
+    border-radius: 3px;
+}
+body {
+    background-color: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-weight: normal;
+}

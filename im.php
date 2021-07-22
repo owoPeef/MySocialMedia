@@ -1,18 +1,45 @@
 <?php
-$data = $_GET['peers'];
-$data = explode("_", $data);
-$a = 0;
-while ($a != count($data))
+session_start();
+include('db/connection.php');
+if (isset($_SESSION['user']['user_id']))
 {
-    if (str_starts_with($data[$a], "c"))
+    if (isset($_GET['sel']))
     {
-        echo "Chat #";
-        echo str_replace("c", "", $data[$a]);
+        $sel = $_GET['sel'];
+        $user_id = $_SESSION['user']['user_id'];
+        $data = mysqli_query($db, "SELECT * FROM `messages` WHERE (`from_user`='{$user_id}' OR `to_user`='{$user_id}') AND (`from_user`='{$sel}' OR `to_user`='{$sel}') ORDER BY `send_date` ASC LIMIT 10");
+        while($row = mysqli_fetch_array($data))
+        {
+            $send_time = date('H:i:s', strtotime($row[4]));
+            if ($row[1] == $row[2] && $user_id == $row[1] && $user_id == $row[2])
+            {
+                echo "<h2>$row[3]</h2><h5>$send_time</h5>";
+            }
+            elseif ($row[1] != $row[2])
+            {
+                if ($row[1] == $user_id || $row[2] == $user_id)
+                {
+                    echo "<h2>$row[3]</h2><h5>$send_time</h5>";
+                }
+                if ($row[1] == $sel || $row[2] == $sel)
+                {
+                    echo "<div class='right_message'><h2 class='right_offset'>$row[3]</h2><h5>$send_time</h5></div>";
+                }
+            }
+        }
     }
-    else
-    {
-        echo $data[$a];
-    }
-    echo "<br>";
-    $a++;
 }
+?>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/messenger.css">
+    <title>Диалоги</title>
+</head>
+<body>
+    <div>
+
+    </div>
+</body>
+</html>
