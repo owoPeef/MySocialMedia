@@ -38,8 +38,30 @@ if (isset($_SESSION['user']['user_id']))
     <title>Диалоги</title>
 </head>
 <body>
-    <div>
+    <div class="sendMsgBox">
+        <input type="text" id="messageInput" name="messageInput">
+        <input type="button" id="send_message" name="sendMessage" value=">">
+        <script>
+            var send_message = document.getElementById("send_message");
+            function sendMsg() {
+                let selected_user = <?php echo $sel ?>;
+                let current_user = <?php echo $user_id ?>;
+                let message = document.getElementById('messageInput').value;
+                const request = new XMLHttpRequest();
+                const url = "im_SendMsg.php?sel=" + selected_user + "&user_id=" + current_user + "&message=" + message;
+                request.open('GET', url);
+                request.setRequestHeader('Content-Type', 'application/x-www-form-url');
+                request.addEventListener("readystatechange", () => {
+                    if (request.readyState === 4 && request.status === 200) {
 
+                        // выводим в консоль то что ответил сервер
+                        console.log( request.responseText );
+                    }
+                });
+                request.send();
+            }
+            send_message.onclick = sendMsg;
+        </script>
     </div>
 </body>
 </html>
