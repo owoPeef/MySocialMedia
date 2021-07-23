@@ -7,6 +7,7 @@ if (isset($_SESSION['user']['user_id']))
     {
         $sel = $_GET['sel'];
         $user_id = $_SESSION['user']['user_id'];
+        $session = $_SESSION['dialogue'] = ['selected_user' => $sel];
     }
 }
 ?>
@@ -19,52 +20,44 @@ if (isset($_SESSION['user']['user_id']))
     <title>Диалоги</title>
 </head>
 <body>
+    <div id="messages_list" class="messages_list"></div>
+    <script>
+        $(document).ready(function(){
+            show();
+            setInterval(show, 1000);
+        });
+        function show() {
+            $.ajax({
+                url: "messages.php",
+                cache: false,
+                success: function(html){
+                    $("#messages_list").html(html);
+                }
+            });
+        }
+    </script>
     <div class="sendMsgBox">
-        <input type="text" id="messageInput" name="messageInput">
-        <input type="button" id="send_message" name="sendMessage" value=">">
-        <script>
-            var send_message = document.getElementById("send_message");
-            function sendMsg() {
-                let selected_user = <?php echo $sel ?>;
-                let current_user = <?php echo $user_id ?>;
-                let message = document.getElementById('messageInput').value;
-                const request = new XMLHttpRequest();
-                const url = "im_SendMsg.php?sel=" + selected_user + "&user_id=" + current_user + "&message=" + message;
-                request.open('GET', url);
-                request.setRequestHeader('Content-Type', 'application/x-www-form-url');
-                request.addEventListener("readystatechange", () => {
-                    if (request.readyState === 4 && request.status === 200) {
-                        console.log(request.responseText);
-                    }
-                });
-                request.send();
-            }
-            send_message.onclick = sendMsg;
-        </script>
+        <input type="text" id="input-id" placeholder="Напишите сообщение...">
+        <input type="button" id="send_message" value=">">
     </div>
-    <div id="messages_list" class="messages_list">
-        <?php
-        if ($sel == $user_id)
-        {
-            $data = mysqli_query($db, "SELECT * FROM `messages` WHERE `from_user`='{$user_id}' AND `to_user`='{$user_id}' ORDER BY `send_date` ASC LIMIT 10");
+    <script>
+        let send_message = document.getElementById("send_message");
+        function sendMsg() {
+            let message = $('#input-id').val();
+            let selected_user = <?php echo $sel ?>;
+            let current_user = <?php echo $user_id ?>;
+            const request = new XMLHttpRequest();
+            const url = "im_SendMsg.php?sel=" + selected_user + "&user_id=" + current_user + "&message=" + message;
+            request.open('GET', url);
+            request.setRequestHeader('Content-Type', 'application/x-www-form-url');
+            request.addEventListener("readystatechange", () => {
+                if (request.readyState === 4 && request.status === 200) {
+                    console.log(request.responseText);
+                }
+            });
+            request.send();
         }
-        if ($sel != $user_id)
-        {
-            $data = mysqli_query($db, "SELECT * FROM `messages` WHERE (`from_user`='{$user_id}' OR `to_user`='{$user_id}') AND (`from_user`='{$sel}' OR `to_user`='{$sel}') ORDER BY `send_date` ASC LIMIT 10");
-        }
-        while($row = mysqli_fetch_array($data))
-        {
-            $send_time = date('H:i:s', strtotime($row[4]));
-            if ($row[1] == $user_id)
-            {
-                echo "<div class='left_message'><h2 class='left_offset'>$row[3]</h2><h5 class='left_date'>$send_time</h5></div>";
-            }
-            if ($row[2] == $user_id && $row[1] != $row[2])
-            {
-                echo "<div class='right_message'><h2 class='right_offset'>$row[3]</h2><h5 class='right_date'>$send_time</h5></div>";
-            }
-        }
-        ?>
-    </div>
+        send_message.onclick = sendMsg;
+    </script>
 </body>
 </html>
