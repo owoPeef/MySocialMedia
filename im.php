@@ -7,6 +7,43 @@ if (isset($_SESSION['user']['user_id']))
     {
         $sel = $_GET['sel'];
         $user_id = $_SESSION['user']['user_id'];
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/messenger.css">
+    <script type="text/javascript" src="jquery.js"></script>
+    <title>Диалоги</title>
+</head>
+<body>
+    <div class="sendMsgBox">
+        <input type="text" id="messageInput" name="messageInput">
+        <input type="button" id="send_message" name="sendMessage" value=">">
+        <script>
+            var send_message = document.getElementById("send_message");
+            function sendMsg() {
+                let selected_user = <?php echo $sel ?>;
+                let current_user = <?php echo $user_id ?>;
+                let message = document.getElementById('messageInput').value;
+                const request = new XMLHttpRequest();
+                const url = "im_SendMsg.php?sel=" + selected_user + "&user_id=" + current_user + "&message=" + message;
+                request.open('GET', url);
+                request.setRequestHeader('Content-Type', 'application/x-www-form-url');
+                request.addEventListener("readystatechange", () => {
+                    if (request.readyState === 4 && request.status === 200) {
+                        console.log(request.responseText);
+                    }
+                });
+                request.send();
+            }
+            send_message.onclick = sendMsg;
+        </script>
+    </div>
+    <div id="messages_list" class="messages_list">
+        <?php
         if ($sel == $user_id)
         {
             $data = mysqli_query($db, "SELECT * FROM `messages` WHERE `from_user`='{$user_id}' AND `to_user`='{$user_id}' ORDER BY `send_date` ASC LIMIT 10");
@@ -27,41 +64,7 @@ if (isset($_SESSION['user']['user_id']))
                 echo "<div class='right_message'><h2 class='right_offset'>$row[3]</h2><h5 class='right_date'>$send_time</h5></div>";
             }
         }
-    }
-}
-?>
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="css/messenger.css">
-    <title>Диалоги</title>
-</head>
-<body>
-    <div class="sendMsgBox">
-        <input type="text" id="messageInput" name="messageInput">
-        <input type="button" id="send_message" name="sendMessage" value=">">
-        <script>
-            var send_message = document.getElementById("send_message");
-            function sendMsg() {
-                let selected_user = <?php echo $sel ?>;
-                let current_user = <?php echo $user_id ?>;
-                let message = document.getElementById('messageInput').value;
-                const request = new XMLHttpRequest();
-                const url = "im_SendMsg.php?sel=" + selected_user + "&user_id=" + current_user + "&message=" + message;
-                request.open('GET', url);
-                request.setRequestHeader('Content-Type', 'application/x-www-form-url');
-                request.addEventListener("readystatechange", () => {
-                    if (request.readyState === 4 && request.status === 200) {
-
-                        // выводим в консоль то что ответил сервер
-                        console.log( request.responseText );
-                    }
-                });
-                request.send();
-            }
-            send_message.onclick = sendMsg;
-        </script>
+        ?>
     </div>
 </body>
 </html>
