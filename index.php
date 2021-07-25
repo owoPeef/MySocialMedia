@@ -1,7 +1,7 @@
 <?php
 session_start();
 include('db/connection.php');
-echo 'test';
+$query = mysqli_query($db, "SELECT * FROM `users`");
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -10,6 +10,15 @@ echo 'test';
     <title></title>
 </head>
 <body>
-
+    <?php
+    if (isset($_SESSION['user']))
+    {
+        echo "You " . $_SESSION['user']['user_id'] . "<br>";
+    }
+    while ($row = mysqli_fetch_array($query))
+    {
+        echo "<a href='session.php?first_name=" . $row[1] . "'>" . $row[1] . "</a><br>";
+    }
+    ?>
 </body>
 </html>
