@@ -28,7 +28,7 @@ if (isset($_SESSION['user']['user_id']))
         });
         function show() {
             $.ajax({
-                url: "messages.php",
+                url: "methods/messages.get.php",
                 cache: false,
                 success: function(html){
                     $("#messages_list").html(html);
@@ -42,17 +42,27 @@ if (isset($_SESSION['user']['user_id']))
     </div>
     <script>
         let send_message = document.getElementById("send_message");
+        document.addEventListener('keyup', event => {
+            if (event.code === 'Enter')
+            {
+                console.log("Enter pressed");
+                sendMsg();
+            }
+        })
         function sendMsg() {
             let message = $('#input-id').val();
             let selected_user = <?php echo $sel ?>;
-            let current_user = <?php echo $user_id ?>;
             const request = new XMLHttpRequest();
-            const url = "im_SendMsg.php?sel=" + selected_user + "&user_id=" + current_user + "&message=" + message;
+            const url = "/methods/messages.send.php?sel=" + selected_user + "&message=" + message;
             request.open('GET', url);
             request.setRequestHeader('Content-Type', 'application/x-www-form-url');
             request.addEventListener("readystatechange", () => {
                 if (request.readyState === 4 && request.status === 200) {
-                    console.log(request.responseText);
+
+                    if (request.responseText === "SUCCESS")
+                    {
+                        $('#input-id').val('');
+                    }
                 }
             });
             request.send();
